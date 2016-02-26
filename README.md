@@ -1,11 +1,11 @@
 # the2038Problem
-A simple timer that illustrates the reasoning behind the famous "Year 2038 Problem."
+A simple timer that illustrates the famous "Year 2038 Problem." See the [Wikipedia article](https://en.wikipedia.org/wiki/Year_2038_problem) for more info.
 
 ### Download and Build
 In your command line enter:
 ```
   git clone https://github.com/comychitz/the2038Problem.git
-  cd the2038Problem
+  cd the2038Problem/
   make
 ```
 ### Usage
