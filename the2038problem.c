@@ -6,7 +6,6 @@
 #include <string.h>
 #include <time.h>
 
-void getTime( int *seconds, char *binary );
 void convertToBinaryString( int value, char *out );
 void runCurrentTime( void );
 void runRightBeforeOverflow( void );
@@ -15,13 +14,16 @@ void printUsage( void );
 int main( int argc, char *argv[] )
 {
   int c;
-  while( (c = getopt( argc, argv, "c" )) != -1 )
+  while( (c = getopt( argc, argv, "ch" )) != -1 )
   {
     switch(c)
     {
       case 'c':
 	runCurrentTime();
 	break;
+      case 'h':
+	printUsage();
+	return 0;
       default:
 	printUsage();
 	return -1;
@@ -35,8 +37,12 @@ int main( int argc, char *argv[] )
 void runRightBeforeOverflow( void )
 {
   char binaryString[33];
-  memset( binaryString, 0, 33 );
+  char *dateString;
   int tenSecondsPrior = 0xFFFFFFFF/2 - 10;
+
+  memset( binaryString, 0, 33 );
+  dateString = malloc(32);
+
 
   system( "clear" );
   printf( "        --- The 2038 Problem ---\n\n" );
@@ -47,10 +53,12 @@ void runRightBeforeOverflow( void )
   while( true )
   {
     system("clear");
-    printf( "        --- The 2038 Problem ---\n\n" );
+    dateString = asctime( gmtime( (time_t*) &tenSecondsPrior )); 
     convertToBinaryString( tenSecondsPrior, binaryString );
+    printf( "        --- The 2038 Problem ---\n\n" );
     printf( "Binary: %s\n", binaryString );
     printf( "32-bit int: %d\n", tenSecondsPrior );
+    printf( "UTC Time: %s\n", dateString );
     tenSecondsPrior++;
     sleep(1);
   }
@@ -62,44 +70,35 @@ void printUsage( void )
   printf("A program to illustrate the famous 2038 problem.\n");
   printf("Specifying no arguments starts the time 10 seconds\n");
   printf("prior to the overflow occuring, which occurs at\n");
-  printf("19 January 2038 03:14:08 UTC");
+  printf("19 January 2038 03:14:08 UTC.\n");
   printf("\n");
   printf("Usage: ./the2038problem [-c]\n");
   printf("\n");
   printf("Options\n");
-  printf("-c		  display current time\n");
+  printf("-c                display current time\n");
+  printf("-h                print this message\n");
 }
 
 void runCurrentTime( void )
 {
   char binaryString[33];
-  char dateString[32];
-  int seconds;
+  char *dateString;
+
+  dateString = malloc( 32 );
 
   memset( binaryString, 0, 33 );
 
   while( true )
   {
     system("clear");
-    getTime( &seconds, binaryString );
     time_t curTime = time(NULL);
-    strftime( dateString, 
-	      sizeof(dateString)-1, 
-	      "%Y-%m-%d %H:%M:%S", 
-	      localtime(&curTime) );
+    dateString = asctime(gmtime(&curTime));
+    convertToBinaryString( curTime, binaryString );
     printf( "Binary: %s\n", binaryString );
-    printf( "32-bit int: %d\n", seconds );
-    printf( "Date: %s\n", dateString );
+    printf( "32-bit int: %d\n", (int) curTime );
+    printf( "UTC Time: %s\n", dateString );
     sleep(1);
   }
-}
-
-void getTime( int *seconds, char *binary )
-{
-  struct timeval t;
-  gettimeofday( &t, NULL );
-  *seconds = t.tv_sec;
-  convertToBinaryString( t.tv_sec, binary );
 }
 
 void convertToBinaryString( int value, char *out )
