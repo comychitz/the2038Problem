@@ -38,12 +38,12 @@ void runRightBeforeOverflow( void )
 {
   char binaryString[33];
   char *dateString;
-  int tenSecondsPrior = 0xFFFFFFFF/2 - 10;
+  time_t tenSecondsPrior = 0xFFFFFFFF/2 - 10;
 
   memset( binaryString, 0, 33 );
   dateString = malloc(32);
 
-
+  setvbuf(stdout, NULL, _IONBF, 0);
   system( "clear" );
   printf( "        --- The 2038 Problem ---\n\n" );
   printf( "Starting 10 seconds before the overflow..." );
@@ -53,15 +53,16 @@ void runRightBeforeOverflow( void )
   while( true )
   {
     system("clear");
-    dateString = asctime( gmtime( (time_t*) &tenSecondsPrior )); 
-    convertToBinaryString( tenSecondsPrior, binaryString );
+    strftime( dateString, 32, "%a %Y-%m-%d %H:%M:%S", gmtime(&tenSecondsPrior) );
+    convertToBinaryString( (int) tenSecondsPrior, binaryString );
     printf( "        --- The 2038 Problem ---\n\n" );
     printf( "Binary: %s\n", binaryString );
-    printf( "32-bit int: %d\n", tenSecondsPrior );
+    printf( "32-bit int: %d\n", (int) tenSecondsPrior );
     printf( "UTC Time: %s\n", dateString );
     tenSecondsPrior++;
     sleep(1);
   }
+  free( dateString );
 }
 
 void printUsage( void )
@@ -92,13 +93,14 @@ void runCurrentTime( void )
   {
     system("clear");
     time_t curTime = time(NULL);
-    dateString = asctime(gmtime(&curTime));
+    strftime( dateString, 32, "%a %Y-%m-%d %H:%M:%S", gmtime(&curTime));
     convertToBinaryString( curTime, binaryString );
     printf( "Binary: %s\n", binaryString );
     printf( "32-bit int: %d\n", (int) curTime );
     printf( "UTC Time: %s\n", dateString );
     sleep(1);
   }
+  free( dateString );
 }
 
 void convertToBinaryString( int value, char *out )
